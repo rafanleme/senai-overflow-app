@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, StatusBar, TextInput, TouchableOpacity } from "react-native";
+import { Alert, StatusBar } from "react-native";
 import Button from "../../components/Button";
 import { api } from "../../services/api";
 import { signIn } from "../../services/security";
@@ -15,6 +15,8 @@ function Login({ navigation }) {
     password: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleEmail = (e) => {
     setLogin({ ...login, email: e });
   };
@@ -25,16 +27,19 @@ function Login({ navigation }) {
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true);
 
       const response = await api.post("/sessions", login);
 
       signIn(response.data);
 
+      setIsLoading(false);
+
       navigation.navigate("Home");
-      
     } catch (error) {
+      setIsLoading(false);
       console.log(error);
-      if(error.response){
+      if (error.response) {
         Alert.alert("Ops", error.response.data.error);
       }
     }
@@ -48,7 +53,9 @@ function Login({ navigation }) {
       <Content>
         <Label>E-Mail</Label>
         <TextInputLogin
+          name="email"
           autoCompleteType="email"
+          keyboardType="email-address"
           placeholderTextColor={colors.lightTransparent}
           placeholder="Digite o seu e-mail"
           onChangeText={handleEmail}
@@ -64,8 +71,8 @@ function Login({ navigation }) {
         />
         <Button
           handlePress={handleSubmit}
-          text="Entrar"
-          disabled={login.email === "" || login.password === ""}
+          text={isLoading ? "Verificando..." : "Entrar"}
+          disabled={isLoading || login.email === "" || login.password === ""}
           style={{ width: "96%" }}
         />
       </Content>

@@ -5,12 +5,21 @@ import {
   StatusBar,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import CardQuestion from "../../components/CardQuestion";
 import { api } from "../../services/api";
 import { signOut } from "../../services/security";
 import colors from "../../styles/colors";
-import { Container, IconSignOut, TextToolBar, ToolBar } from "./styles";
+import {
+  Container,
+  IconSignOut,
+  ImageLogo,
+  LoadingFeed,
+  TextToolBar,
+  ToolBar,
+} from "./styles";
+import imgLogo from "../../../assets/logo.png";
 
 function Home({ navigation }) {
   StatusBar.setBackgroundColor(colors.primary);
@@ -47,17 +56,32 @@ function Home({ navigation }) {
   };
 
   useEffect(() => {
-    loadQuestions();
-  }, []);
+    if (questions.length === 0) {
+      loadQuestions();
+    }
+  }, [questions]);
 
   const handleSignOut = () => {
     signOut();
     navigation.navigate("Login");
-  }
+  };
+
+  const handleRefresh = () => {
+    // setPage(1);
+    // setQuestions([]);
+
+    navigation.navigate("NewQuestion");
+  };
 
   return (
     <Container>
       <ToolBar>
+        <TouchableOpacity
+          onPress={handleRefresh}
+          style={{ position: "absolute", left: 4 }}
+        >
+          <ImageLogo source={imgLogo} />
+        </TouchableOpacity>
         <TextToolBar>SENAI OVERFLOW</TextToolBar>
         <TouchableOpacity
           onPress={handleSignOut}
@@ -70,12 +94,13 @@ function Home({ navigation }) {
         data={questions}
         style={{ width: "100%" }}
         onEndReached={() => loadQuestions()}
-        onEndReachedThreshold={0.2}
+        onEndReachedThreshold={1}
         keyExtractor={(question) => String(question.id)}
         renderItem={({ item: question }) => (
           <CardQuestion question={question} />
         )}
       />
+      {isLoadingFeed && <LoadingFeed size="large" color={colors.primary} />}
     </Container>
   );
 }

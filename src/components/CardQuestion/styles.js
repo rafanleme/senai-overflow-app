@@ -89,9 +89,7 @@ export const InputAnswer = styled.TextInput`
 `;
 
 export const SendIcon = styled(Icon)`
-  position: absolute;
-  color: ${colors.light};
-  right: 4px;
+  color: ${({enabled}) => enabled ? colors.light : colors.lightTransparent};
   font-size: 25px;
 `;
 
